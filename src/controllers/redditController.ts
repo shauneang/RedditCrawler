@@ -30,3 +30,26 @@ export const crawlMemesSubreddit = async (req: Request, res: Response): Promise<
         res.status(500).json({ error: "Failed to scrape memes" });
     }
 };
+
+/**
+ * @desc Fetch memes from Firestore database
+ * @route GET /scrape/memes
+ */
+export const getMemesFromDatabase = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const memes = await getPostsFromFirestore(20); // Fetch latest 20 memes
+
+        if (memes.length === 0) {
+            res.status(404).json({ message: "No memes found in database." });
+            return;
+        }
+
+        res.status(200).json({
+            message: "Memes retrieved successfully!",
+            memes,
+        });
+    } catch (error) {
+        console.error("❌ Error fetching memes from Firestore:", error);
+        res.status(500).json({ error: "Failed to fetch memes" });
+    }
+};
