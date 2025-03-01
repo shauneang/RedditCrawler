@@ -1,13 +1,13 @@
 import { Request, Response } from "express";
 import { getPostsFromFirestore, savePostToFirestore } from "../services/firebaseServices";
-import { fetchTopMemes } from "../services/redditServices";
+import { fetchTopMemes, scrapeRedditMemes } from "../services/redditServices";
 import { MemeDataType } from "../type/redditTypes";
 
 /**
  * @desc Fetch and store top memes from r/memes in Firebase Firestore, then return the top 20 memes
- * @route POST /scrape/memes
+ * @route POST /scrape/memes/fetch
  */
-export const crawlMemesSubreddit = async (req: Request, res: Response): Promise<void> => {
+export const getTop20Memes = async (req: Request, res: Response): Promise<void> => {
     try {
         // Fetch top 20 memes from r/memes (past 24 hours)
         const memes: MemeDataType[] = await fetchTopMemes(20);
@@ -51,5 +51,28 @@ export const getMemesFromDatabase = async (req: Request, res: Response): Promise
     } catch (error) {
         console.error("❌ Error fetching memes from Firestore:", error);
         res.status(500).json({ error: "Failed to fetch memes" });
+    }
+};
+
+/**
+ * @desc Fetch memes from web scraping
+ * @route GET /scrape/memes/scrape
+ */
+export const getScrappedMemes = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const memes = await scrapeRedditMemes();
+
+        if (memes.length === 0) {
+            res.status(404).json({ message: "No memes found from scraping." });
+            return;
+        }
+
+        res.status(200).json({
+            message: "Memes scraped successfully!",
+            memes,
+        });
+    } catch (error) {
+        console.error("❌ Error scraping memes:", error);
+        res.status(500).json({ error: "Failed to scrape memes" });
     }
 };
