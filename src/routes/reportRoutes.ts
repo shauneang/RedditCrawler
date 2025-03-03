@@ -1,18 +1,27 @@
 import { Router } from "express";
-import { generateReport } from "../controllers/reportController";
+import { getLatestTopMemes, getReport } from "../controllers/reportController";
 
 const router = Router();
 
+// Route to get a report on the top 20 memes in the past 24 hours
 router.get("/report", async (req, res) => {
+    console.log("📊 Received request: GET /report");
     try {
-        const reportBuffer = await generateReport();
-
-        res.setHeader("Content-Disposition", "attachment; filename=report.pdf");
-        res.setHeader("Content-Type", "application/pdf");
-        res.send(reportBuffer);
+        await getReport(req, res);
+        console.log("✅ Successfully generated meme report.");
     } catch (error) {
-        console.error("❌ Error generating report:", error);
-        res.status(500).json({ error: "Failed to generate report" });
+        console.error("❌ Error generating meme report:", error);
+    }
+});
+
+// Route to get the latest top memes data
+router.get("/top-memes", async (req, res) => {
+    console.log("🔥 Received request: GET /top-memes");
+    try {
+        await getLatestTopMemes(req, res);
+        console.log("✅ Successfully retrieved latest top memes.");
+    } catch (error) {
+        console.error("❌ Error fetching latest memes:", error);
     }
 });
 

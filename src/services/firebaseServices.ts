@@ -1,25 +1,44 @@
 import { db } from "../database";
+import { MemeDataType } from "../type/redditTypes";
 
-const redditCollection = db.collection("reddit_posts");
+const redditCollection = db.collection("top_memes");
 
-export const savePostToFirestore = async (postData: any) => {
+/**
+ * Save a Reddit post to Firestore using `post_id + fetch_timestamp` as the document ID.
+ * If the post already exists for that hour, update it instead of creating a new entry.
+ */
+export const savePostToFirestore = async (postData: MemeDataType) => {
     try {
-        const postExists = await redditCollection.where("post_id", "==", postData.post_id).get();
+        // Generate a unique document ID using post_id + fetch_timestamp
+        const docId = `${postData.post_id}_${postData.fetch_timestamp.getTime()}`;
 
-        if (postExists.empty) {
-            await redditCollection.add(postData);
-            console.log(`✅ Saved post: ${postData.title}`);
+        // Reference the document
+        const postRef = redditCollection.doc(docId);
+        const postSnapshot = await postRef.get();
+
+        if (postSnapshot.exists) {
+            // If post exists, update its values
+            await postRef.update({
+                up_votes: postData.up_votes,
+                down_votes: postData.down_votes,
+                score: postData.score,
+                num_comments: postData.num_comments,
+                meme_analysis: postData.meme_analysis
+            });
+            console.log(`🔄 Updated post: ${postData.title}`);
         } else {
-            console.log(`⚠️ Post already exists: ${postData.title}`);
+            // If post does not exist, create a new entry
+            await postRef.set(postData);
+            console.log(`✅ Saved new post: ${postData.title}`);
         }
     } catch (error) {
-        console.error("Error saving post to Firestore:", error);
+        console.error("❌ Error saving post to Firestore:", error);
     }
 };
 
 export const getPostsFromFirestore = async (limit: number): Promise<any[]> => {
     try {
-        const snapshot = await redditCollection.orderBy("timestamp", "desc").limit(limit).get();
+        const snapshot = await redditCollection.orderBy("fetch_timestamp", "desc").limit(limit).get();
         return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     } catch (error) {
         console.error("Error fetching posts from Firestore:", error);

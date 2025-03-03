@@ -1,9 +1,17 @@
 import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
+import cron from "node-cron";
 import "./bot/topMemesBot";
-import scrapeRoutes from "./routes/redditRouter";
+import scrapeRoutes from "./routes/crawlerRoutes";
+import ocrRoutes from "./routes/ocrRoutes";
 import reportRoutes from "./routes/reportRoutes";
+import { fetchAndStoreTopMemes } from "./services/crawlerServices";
+
+cron.schedule("0 * * * *", async () => {
+    console.log("⏳ Fetching memes...");
+    await fetchAndStoreTopMemes();
+});
 
 dotenv.config();
 
@@ -13,9 +21,8 @@ app.use(cors());
 
 // Register API routes
 app.use("/scrape", scrapeRoutes);
-
-// Register API routes
 app.use("/api", reportRoutes);
+app.use("/ocr", ocrRoutes);
 
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => {
