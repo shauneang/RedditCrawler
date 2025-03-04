@@ -12,7 +12,6 @@ export const fetchTop20Memes = async (req: Request, res: Response): Promise<void
         // Fetch top 20 memes from r/memes (past 24 hours)
         const memes: MemeDataType[] = await fetchTopMemes(20);
         const analysedMemes: MemeDataType[] = await analyseMemes(memes);
-        console.log(analysedMemes)
         saveMemesToFirestore(analysedMemes)
 
         res.status(200).json({

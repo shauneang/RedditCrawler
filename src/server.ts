@@ -8,7 +8,7 @@ import reportRoutes from "./routes/reportRoutes";
 import testRoutes from "./routes/testRoutes";
 import { fetchAndStoreTopMemes } from "./services/crawlerServices";
 
-cron.schedule("* * * * *", async () => {
+cron.schedule("0 * * * *", async () => {
     console.log("⏳ Fetching memes...");
     await fetchAndStoreTopMemes();
 });
