@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { generateReport, getHourlyTopMemes } from "../services/reportServices";
+import { MemeDataType } from "../type/redditTypes";
 import { getHourlyTimestamp } from "../utils/utils";
 
 /**
@@ -7,7 +8,9 @@ import { getHourlyTimestamp } from "../utils/utils";
  */
 export const getReport = async (req: Request, res: Response): Promise<void> => {
     try {
-        const reportBuffer = await generateReport();
+        const latestHour = getHourlyTimestamp();
+        const memes: MemeDataType[] = await getHourlyTopMemes(latestHour);
+        const reportBuffer = await generateReport(memes);
 
         res.setHeader("Content-Disposition", "attachment; filename=report.pdf");
         res.setHeader("Content-Type", "application/pdf");

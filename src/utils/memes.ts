@@ -67,3 +67,8 @@ export const analyseMeme = async (post: any): Promise<MemeDataType> => {
     };
     return post;
 }
+
+export const sortByUpvotes = (memes: MemeDataType[], order: string = "asc"): MemeDataType[] => {
+    memes.sort((m1, m2) => order == "asc" ? m1.up_votes - m2.up_votes : m2.up_votes - m1.up_votes)
+    return memes;
+}

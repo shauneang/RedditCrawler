@@ -2,7 +2,9 @@ import dotenv from "dotenv";
 import fs from "fs";
 import TelegramBot from "node-telegram-bot-api";
 import { packageMemeData } from "../controllers/botController";
-import { generateReport } from "../services/reportServices";
+import { generateReport, getHourlyTopMemes } from "../services/reportServices";
+import { MemeDataType } from "../type/redditTypes";
+import { getHourlyTimestamp } from "../utils/utils";
 
 dotenv.config();
 
@@ -22,7 +24,9 @@ bot.onText(/\/getreport/, async (msg) => {
     bot.sendMessage(chatId, "Generating your report... Please wait.");
 
     try {
-        const filePath = await generateReport();
+        const latestHour = getHourlyTimestamp();
+        const memes: MemeDataType[] = await getHourlyTopMemes(latestHour);
+        const filePath = await generateReport(memes);
         console.log(`📂 [Bot] Report generated at: ${filePath}`);
 
         const fileStream = fs.createReadStream(filePath);
