@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { fetchTopMemes } from "../services/crawlerServices";
-import { getPostsFromFirestore, savePostToFirestore } from "../services/firebaseServices";
+import { analyseMemes, fetchTopMemes, saveMemesToFirestore } from "../services/crawlerServices";
+import { getPostsFromFirestore } from "../services/firebaseServices";
 import { MemeDataType } from "../type/redditTypes";
 
 /**
@@ -11,18 +11,13 @@ export const fetchTop20Memes = async (req: Request, res: Response): Promise<void
     try {
         // Fetch top 20 memes from r/memes (past 24 hours)
         const memes: MemeDataType[] = await fetchTopMemes(20);
-
-        // Store in Firestore (avoid duplicates)
-        for (const meme of memes) {
-            await savePostToFirestore(meme);
-        }
-
-        // Retrieve the top 20 memes from Firestore (sorted by timestamp)
-        const storedMemes = await getPostsFromFirestore(20);
+        const analysedMemes: MemeDataType[] = await analyseMemes(memes);
+        console.log(analysedMemes)
+        saveMemesToFirestore(analysedMemes)
 
         res.status(200).json({
             message: "Top memes fetched successfully!",
-            memes: storedMemes, // Return stored memes
+            memes: analysedMemes, // Return stored memes
         });
     } catch (error) {
         console.error("Error scraping memes:", error);

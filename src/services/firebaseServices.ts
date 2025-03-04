@@ -10,7 +10,7 @@ const redditCollection = db.collection("top_memes");
 export const savePostToFirestore = async (postData: MemeDataType) => {
     try {
         // Generate a unique document ID using post_id + fetch_timestamp
-        const docId = `${postData.post_id}_${postData.fetch_timestamp.getTime()}`;
+        const docId = `${postData.fetch_timestamp.getTime()}_${postData.post_id}`;
 
         // Reference the document
         const postRef = redditCollection.doc(docId);
@@ -23,11 +23,11 @@ export const savePostToFirestore = async (postData: MemeDataType) => {
                 down_votes: postData.down_votes,
                 score: postData.score,
                 num_comments: postData.num_comments,
-                meme_analysis: postData.meme_analysis
             });
             console.log(`🔄 Updated post: ${postData.title}`);
         } else {
             // If post does not exist, create a new entry
+            console.log(postData)
             await postRef.set(postData);
             console.log(`✅ Saved new post: ${postData.title}`);
         }
@@ -45,3 +45,14 @@ export const getPostsFromFirestore = async (limit: number): Promise<any[]> => {
         throw new Error("Failed to fetch posts");
     }
 };
+
+export const existsInFirestore = async (meme: MemeDataType): Promise<Boolean> => {
+    // Generate a unique document ID using post_id + fetch_timestamp
+    const docId = `${meme.fetch_timestamp.getTime()}_${meme.post_id}`;
+
+    // Reference the document
+    const postRef = redditCollection.doc(docId);
+    const postSnapshot = await postRef.get();
+
+    return postSnapshot.exists;
+}

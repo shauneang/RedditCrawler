@@ -1,8 +1,16 @@
 import dotenv from "dotenv";
 import admin from "firebase-admin";
+import fs from 'fs';
 dotenv.config();
 
-const firebaseConfig = JSON.parse(process.env.FIREBASE_CREDENTIALS as string);
+const firebaseCredentialsPath = process.env.FIREBASE_CREDENTIALS;
+
+if (!firebaseCredentialsPath) {
+    console.error("❌ Missing FIREBASE_CREDENTIALS in .env file.");
+    process.exit(1);
+}
+
+const firebaseConfig = JSON.parse(fs.readFileSync(firebaseCredentialsPath, "utf8"));
 
 // Initialize Firebase
 admin.initializeApp({

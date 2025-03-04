@@ -4,7 +4,7 @@ import { cleanText, isRedditVidUrl } from "./utils";
 /**
  * Process an image and extract text using Tesseract.js
  */
-export const extractTextFromImage = async (imagePath: string) => {
+export const extractTextTesseract = async (imagePath: string) => {
     if (isRedditVidUrl(imagePath)) {
         throw new Error(`❌ Unsupported file type: ${imagePath} is a video, not an image.`);
     }
@@ -17,6 +17,6 @@ export const extractTextFromImage = async (imagePath: string) => {
 
     const cleanedText: string = cleanText(data.text);
 
-    console.log("✅ OCR Completed. Extracted text:", cleanText(cleanedText));
+    console.log("✅ OCR Completed. Extracted text:", cleanedText);
     return cleanedText;
 };

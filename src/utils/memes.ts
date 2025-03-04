@@ -1,6 +1,6 @@
 import { MemeDataType, RedditVideoType } from "../type/redditTypes";
+import { detectLabels, extractTextGoogle } from "./imgRecog";
 import { analyseSentiment, extractKeywords } from "./nlp";
-import { extractTextFromImage } from "./ocr";
 
 export const parseMemeData = (post: any): MemeDataType => {
     let parsedMedia: RedditVideoType | null = null; // Ensure proper typing for media
@@ -46,16 +46,16 @@ export const analyseMeme = async (post: any): Promise<MemeDataType> => {
         return post;
     }
     // Step 1: Extract Text (OCR)
-    const ocrText = await extractTextFromImage(post.url);
+    const ocrText = await extractTextGoogle(post.url);
 
     // // Step 2: Detect Objects (Google Vision)
-    // const detectedObjects = await analyzeMemeImage(post.url);
+    const detectedObjects = await detectLabels(post.url);
 
     // Step 3: Sentiment Analysis (Wholesome vs Dark)
     const sentiment = analyseSentiment(ocrText + post.title).score;
 
     // // Step 4: AI Classification (CLIP)
-    // const memeCategory = await classifyWithCLIP(post.url);
+    // const memeCategory = await classifyImage(post.url);
 
     //Step 5: Extract Keywords
     const titleKeywords = await extractKeywords(post.title);
@@ -63,7 +63,7 @@ export const analyseMeme = async (post: any): Promise<MemeDataType> => {
 
     post.meme_analysis = {
         ocr_text: ocrText,
-        // detected_objects: detectedObjects,
+        detected_objects: detectedObjects,
         sentiment: sentiment,
         // category: memeCategory,
         keywords: titleKeywords.concat(ocrKeywords),

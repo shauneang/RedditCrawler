@@ -4,11 +4,11 @@ import express from "express";
 import cron from "node-cron";
 import "./bot/topMemesBot";
 import scrapeRoutes from "./routes/crawlerRoutes";
-import ocrRoutes from "./routes/ocrRoutes";
 import reportRoutes from "./routes/reportRoutes";
+import testRoutes from "./routes/testRoutes";
 import { fetchAndStoreTopMemes } from "./services/crawlerServices";
 
-cron.schedule("0 * * * *", async () => {
+cron.schedule("* * * * *", async () => {
     console.log("⏳ Fetching memes...");
     await fetchAndStoreTopMemes();
 });
@@ -22,7 +22,7 @@ app.use(cors());
 // Register API routes
 app.use("/scrape", scrapeRoutes);
 app.use("/api", reportRoutes);
-app.use("/ocr", ocrRoutes);
+app.use("/test", testRoutes);
 
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => {
