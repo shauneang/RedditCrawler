@@ -42,30 +42,27 @@ export const parseMemeData = (post: any): MemeDataType => {
 }
 
 export const analyseMeme = async (post: any): Promise<MemeDataType> => {
-    if (post.post_hint != "image" || post.is_video) {
-        return post;
+    var ocrText = ""
+    var detectedObjects: string[] = []
+
+    if (post.post_hint == "image" || !post.is_video) {
+        // Extract text and objects from image
+        ocrText = await extractTextGoogle(post.url);
+
+        detectedObjects = await detectLabels(post.url);
     }
-    // Step 1: Extract Text (OCR)
-    const ocrText = await extractTextGoogle(post.url);
 
-    // // Step 2: Detect Objects (Google Vision)
-    const detectedObjects = await detectLabels(post.url);
-
-    // Step 3: Sentiment Analysis (Wholesome vs Dark)
+    // Sentiment Analysis (Wholesome vs Dark)
     const sentiment = analyseSentiment(ocrText + post.title).score;
 
-    // // Step 4: AI Classification (CLIP)
-    // const memeCategory = await classifyImage(post.url);
-
-    //Step 5: Extract Keywords
+    // Extract Keywords
     const titleKeywords = await extractKeywords(post.title);
-    const ocrKeywords = await extractKeywords(ocrText);
+    const ocrKeywords = ocrText ? await extractKeywords(ocrText) : [];
 
     post.meme_analysis = {
         ocr_text: ocrText,
         detected_objects: detectedObjects,
         sentiment: sentiment,
-        // category: memeCategory,
         keywords: titleKeywords.concat(ocrKeywords),
     };
     return post;

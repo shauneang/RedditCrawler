@@ -27,7 +27,6 @@ export const savePostToFirestore = async (postData: MemeDataType) => {
             console.log(`🔄 Updated post: ${postData.title}`);
         } else {
             // If post does not exist, create a new entry
-            console.log(postData)
             await postRef.set(postData);
             console.log(`✅ Saved new post: ${postData.title}`);
         }

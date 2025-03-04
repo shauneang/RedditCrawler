@@ -9,7 +9,7 @@ import testRoutes from "./routes/testRoutes";
 import { fetchAndStoreTopMemes } from "./services/crawlerServices";
 
 cron.schedule("0 * * * *", async () => {
-    console.log("⏳ Fetching memes...");
+    console.log(`⏳ Fetching memes at ${new Date().toISOString()}`);
     await fetchAndStoreTopMemes();
 });
 
