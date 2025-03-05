@@ -36,6 +36,8 @@ export const generateMemeReportTemplate = (
 
             // 🔹 Top Memes Table
             { text: "Top Voted Memes", style: "subheader" },
+            { text: "Note: Downvotes show 0, but Upvote_ratio is not 100%. The discrepency exists in the Reddit API itself." },
+            { text: "\n" },
             {
                 text: "The table below highlights the top 20 memes based on total upvotes. "
                     + "These memes received the highest engagement and represent the most popular trends within the selected timeframe.",
