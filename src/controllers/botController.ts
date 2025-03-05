@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-import { getHourlyTopMemes } from "../services/reportServices";
+import { getCurrentTopMemes, getHourlyTopMemes } from "../services/reportServices";
 import { getHourlyTimestamp } from "../utils/utils";
 
 /**
@@ -10,7 +10,8 @@ import { getHourlyTimestamp } from "../utils/utils";
 export const packageMemeData = async (): Promise<string> => {
     try {
         const latestHour = getHourlyTimestamp();
-        const memes = await getHourlyTopMemes(latestHour);
+        let memes = await getHourlyTopMemes(latestHour);
+        memes = memes.length == 0 ? await getCurrentTopMemes() : memes
 
         if (memes.length === 0) {
             console.log("⚠️ No memes found, returning empty JSON.");

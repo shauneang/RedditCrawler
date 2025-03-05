@@ -72,3 +72,27 @@ export const sortByUpvotes = (memes: MemeDataType[], order: string = "asc"): Mem
     memes.sort((m1, m2) => order == "asc" ? m1.up_votes - m2.up_votes : m2.up_votes - m1.up_votes)
     return memes;
 }
+
+/**
+ * Generates a top keyword aggregation list with counts.
+ */
+export const generateTopKeywords = (memes: MemeDataType[], minCount: number = 3, maxKeywords: number = 10): { word: string; count: number }[] => {
+    const keywordCounts: Record<string, number> = {};
+
+    // ✅ Extract and count keywords
+    memes.forEach(meme => {
+        const keywords = meme.meme_analysis?.detected_objects || [];
+
+        keywords.forEach((word: string) => {
+            keywordCounts[word] = (keywordCounts[word] || 0) + 1;
+        });
+    });
+
+    // ✅ Filter words that appear at least `minCount` times
+    const filteredKeywords = Object.entries(keywordCounts)
+        .filter(([_, count]) => count >= minCount)
+        .map(([word, count]) => ({ word, count }));
+
+    // ✅ Sort by count in descending order and limit to `maxKeywords`
+    return filteredKeywords.sort((a, b) => b.count - a.count).slice(0, maxKeywords);
+};

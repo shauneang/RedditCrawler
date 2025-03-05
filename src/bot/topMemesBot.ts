@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 import fs from "fs";
 import TelegramBot from "node-telegram-bot-api";
 import { packageMemeData } from "../controllers/botController";
-import { generateReport, getHourlyTopMemes } from "../services/reportServices";
+import { generateReport, getCurrentTopMemes, getHourlyTopMemes } from "../services/reportServices";
 import { MemeDataType } from "../type/redditTypes";
 import { getHourlyTimestamp } from "../utils/utils";
 
@@ -25,7 +25,9 @@ bot.onText(/\/getreport/, async (msg) => {
 
     try {
         const latestHour = getHourlyTimestamp();
-        const memes: MemeDataType[] = await getHourlyTopMemes(latestHour);
+        let memes: MemeDataType[] = await getHourlyTopMemes(latestHour);
+        memes = memes.length == 0 ? await getCurrentTopMemes() : memes
+
         const filePath = await generateReport(memes);
         console.log(`📂 [Bot] Report generated at: ${filePath}`);
 

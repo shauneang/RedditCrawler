@@ -3,8 +3,9 @@ import { ChartJSNodeCanvas } from "chartjs-node-canvas";
 import fs from "fs";
 import path from "path";
 import { Content, TableCell } from "pdfmake/interfaces";
+import { getHourlyTopMemes } from "../services/reportServices";
 import { MemeDataType } from "../type/redditTypes";
-import { sortByUpvotes } from "./memes";
+import { generateTopKeywords, sortByUpvotes } from "./memes";
 
 /**
  * Initialize ChartJS Node Canvas
@@ -65,14 +66,14 @@ export const generateChart = async (
             },
             scales: {
                 x: {
-                    type: scaleType, // ✅ Force evenly spaced categorical labels
+                    type: scaleType,
                     title: {
                         display: true,
                         text: xLabel, // ✅ X-Axis Label
                         font: { size: 14 },
                     },
                     ticks: {
-                        autoSkip: false, // ✅ Ensures all labels are displayed
+                        autoSkip: false,
                     },
                 },
                 y: {
@@ -133,7 +134,9 @@ export const generateMultiLineGraph = async (
     title: string,
     labels: string[],
     datasets: any[],
-    chartType: ChartType
+    chartType: ChartType,
+    xLabel: string,
+    yLabel: string
 ): Promise<string> => {
     const chartsDir = path.join(__dirname, "../../charts");
 
@@ -153,6 +156,29 @@ export const generateMultiLineGraph = async (
                 fill: false,
             })),
         },
+        options: {
+            scales: {
+                x: {
+                    type: "linear",
+                    title: {
+                        display: true,
+                        text: xLabel, // ✅ X-Axis Label
+                        font: { size: 14 },
+                    },
+                    ticks: {
+                        autoSkip: false,
+                    },
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: yLabel, // ✅ X-Axis Label
+                        font: { size: 14 },
+                    },
+
+                }
+            }
+        }
     };
 
     const imagePath = path.join(chartsDir, `${title.replace(/\s+/g, "_")}.png`);
@@ -195,18 +221,132 @@ export const generateTimestampGraph = async (memes: MemeDataType[]): Promise<str
     const { hours, hourlyVotes, hourlyComments, hourlyVoteRatios } =
         generateHourlyGraphData(memes);
 
-    const timestampGraphPath = await generateMultiLineGraph(
-        "Meme Timestamp Distribution",
+    const timestampGraphPath = await generateChart(
         hours.map(String),
-        [
-            { label: "Votes", values: hourlyVotes },
-            { label: "Comments", values: hourlyComments },
-            { label: "Vote Ratio", values: hourlyVoteRatios },
-        ],
-        "line"
+        hourlyVotes,
+        "Meme Timestamp Distribution",
+        // [
+        //     { label: "Votes", values: hourlyVotes },
+        //     { label: "Comments", values: hourlyComments },
+        //     { label: "Vote Ratio", values: hourlyVoteRatios },
+        // ],
+        "line",
+        "category",
+        "Time",
+        "Votes"
     );
     return timestampGraphPath
 }
+
+/**
+ * Generate hourly timestamp graph data
+ */
+export const generateAggregatedTimestampData = async () => {
+    // ✅ Get current time and past 24-hour threshold
+    const now = new Date();
+    const past24Hours = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+
+    // ✅ Initialize a map to store upvote totals per hour
+    const hourlyData: Record<number, { upvotes: number; count: number }> = {};
+
+    // ✅ Populate hourlyData (0-23 hours)
+    for (let hour = 0; hour < 24; hour++) {
+        hourlyData[hour] = { upvotes: 0, count: 0 };
+    }
+
+    // ✅ Retrieve memes for each of the past 24 hours
+    for (let hour = 0; hour < 24; hour++) {
+        const targetHour = new Date(now);
+        targetHour.setHours(now.getHours() - hour, 0, 0, 0);
+
+        const memes = await getHourlyTopMemes(targetHour);
+
+        // ✅ Filter memes that were posted within the last 24 hours
+        memes.forEach(meme => {
+            const postHour = meme.post_timestamp.getHours();
+            if (meme.post_timestamp >= past24Hours) {
+                hourlyData[postHour].upvotes += meme.up_votes;
+                hourlyData[postHour].count++;
+            }
+        });
+    }
+
+    // ✅ Calculate average upvotes per hour
+    const hours = Array.from({ length: 24 }, (_, i) => i); // [0, 1, ..., 23]
+    const avgUpvotes = hours.map(hour =>
+        hourlyData[hour].count > 0
+            ? hourlyData[hour].upvotes / hourlyData[hour].count
+            : 0
+    );
+    return { hours, avgUpvotes }
+}
+
+/**
+ * Generates an hourly timestamp graph with fair distribution of upvotes.
+ * @returns The file path of the generated graph.
+ */
+export const generateAggregatedTimestampGraph = async (): Promise<string> => {
+    const width = 800;
+    const height = 400;
+    const chartJSNodeCanvas = new ChartJSNodeCanvas({ width, height });
+
+    const { hours, avgUpvotes } = await generateAggregatedTimestampData();
+
+    // ✅ Generate the chart
+    const chartConfig: ChartConfiguration<ChartType> = {
+        type: "line",
+        data: {
+            labels: hours.map(hour => `${hour}:00`), // Labels: 0:00 - 23:00
+            datasets: [
+                {
+                    label: "Average Upvotes per Hour",
+                    data: avgUpvotes,
+                    backgroundColor: "rgba(54, 162, 235, 0.5)",
+                    borderColor: "rgba(54, 162, 235, 1)",
+                    borderWidth: 2,
+                    fill: false,
+                },
+            ],
+        },
+        options: {
+            plugins: {
+                title: {
+                    display: true,
+                    text: "Hourly Average Upvotes (Last 24 Hours)",
+                    font: { size: 16 },
+                },
+            },
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: "Hour of the Day",
+                        font: { size: 14 },
+                    },
+                    ticks: {
+                        autoSkip: false,
+                    },
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: "Average Upvotes",
+                        font: { size: 14 },
+                    },
+                },
+            },
+        },
+    };
+
+    // ✅ Save the chart as an image
+    const chartsDir = path.join(__dirname, "../../charts");
+    if (!fs.existsSync(chartsDir)) fs.mkdirSync(chartsDir, { recursive: true });
+
+    const imagePath = path.join(chartsDir, "Hourly_Average_Upvotes.png");
+    const buffer = await chartJSNodeCanvas.renderToBuffer(chartConfig);
+    fs.writeFileSync(imagePath, buffer);
+    return imagePath;
+};
 
 /**
  * Generates a graph for Sentiment Score vs. Average Upvotes.
@@ -293,4 +433,31 @@ export const generatePostFormatDistributionGraph = async (memes: MemeDataType[])
     });
 
     return await generateChart(Object.keys(formatCounts), Object.values(formatCounts), "Post Format Distribution", "bar", "category", "Post Format", "No. of Posts");
+};
+
+/**
+ * Generates a table of top keywords for pdfmake.
+ * @param memes - List of memes.
+ * @returns Table content for pdfmake.
+ */
+export const generateKeywordTable = (memes: MemeDataType[]): Content => {
+    const topKeywords = generateTopKeywords(memes, 2); // Get keywords appearing at least 3 times
+
+    // ✅ Define table headers
+    const headers: TableCell[] = [
+        { text: "Keyword", bold: true },
+        { text: "Count", bold: true }
+    ];
+
+    // ✅ Create table rows
+    const rows: TableCell[][] = topKeywords.map(({ word, count }) => [word, count.toString()]);
+
+    return {
+        table: {
+            headerRows: 1,
+            widths: ["70%", "30%"], // Column widths (Keyword: 70%, Count: 30%)
+            body: [headers, ...rows]
+        },
+        layout: "lightHorizontalLines", // ✅ Adds horizontal lines for readability
+    };
 };

@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { generateReport, getHourlyTopMemes } from "../services/reportServices";
+import { generateReport, getCurrentTopMemes, getHourlyTopMemes } from "../services/reportServices";
 import { MemeDataType } from "../type/redditTypes";
 import { getHourlyTimestamp } from "../utils/utils";
 
@@ -9,7 +9,9 @@ import { getHourlyTimestamp } from "../utils/utils";
 export const getReport = async (req: Request, res: Response): Promise<void> => {
     try {
         const latestHour = getHourlyTimestamp();
-        const memes: MemeDataType[] = await getHourlyTopMemes(latestHour);
+        let memes: MemeDataType[] = await getHourlyTopMemes(latestHour);
+        memes = memes.length == 0 ? await getCurrentTopMemes() : memes
+
         const reportBuffer = await generateReport(memes);
 
         res.setHeader("Content-Disposition", "attachment; filename=report.pdf");
@@ -26,9 +28,7 @@ export const getReport = async (req: Request, res: Response): Promise<void> => {
  */
 export const getLatestTopMemes = async (req: Request, res: Response) => {
     try {
-        const latestHour = getHourlyTimestamp(); // Get the latest hourly timestamp
-
-        const memes = await getHourlyTopMemes(latestHour);
+        const memes = await getCurrentTopMemes();
 
         res.status(200).json({ message: "✅ Latest memes", memes });
     } catch (error) {

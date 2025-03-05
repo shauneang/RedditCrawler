@@ -11,6 +11,7 @@ import { Content, TDocumentDefinitions } from "pdfmake/interfaces";
  */
 export const generateMemeReportTemplate = (
     memesTable: Content,
+    keywordsTable: Content,
     timestampGraphPath: string,
     commentsVsUpvotesGraph: string,
     votesVsUpvoteRatioGraph: string,
@@ -23,8 +24,13 @@ export const generateMemeReportTemplate = (
             { text: `Generated on: ${new Date().toLocaleString()}`, style: "subheader" },
             { text: "\n" },
 
+            { text: "Top Voted Memes", style: "subheader" },
             // Top Memes Table
             memesTable,
+            { text: "\n" },
+            { text: "Top Keywords Extracted", style: "subheader" },
+            // Top Keywords Table
+            keywordsTable,
 
             { text: "\n" },
             { text: "Meme Timestamp Distribution", style: "subheader" },
