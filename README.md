@@ -289,6 +289,7 @@ The Telegram bot allows users to:
 
 - Generates a detailed PDF report with:
 - Top meme statistics (upvotes, comments, vote ratio)
+- Top ranking creators
 - Timestamp analysis (popularity trends by hour)
 - Sentiment & keyword analysis
 - Graphs and visual insights

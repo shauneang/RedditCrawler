@@ -4,7 +4,7 @@ import PdfPrinter from "pdfmake";
 import { TDocumentDefinitions } from "pdfmake/interfaces";
 import { db } from "../database";
 import { MemeDataType } from "../type/redditTypes";
-import { generateAggregatedTimestampGraph, generateKeywordTable, generatePostFormatDistributionGraph, generateSentimentGraph, generateTopMemesTable, generateUpvotesVsCommentsGraph, generateVotesVsUpvoteRatioGraph } from "../utils/pdfHelper";
+import { generateAggregatedTimestampGraph, generateKeywordTable, generatePostFormatDistributionGraph, generateRankedCreatorsTable, generateSentimentGraph, generateTopMemesTable, generateUpvotesVsCommentsGraph, generateVotesVsUpvoteRatioGraph } from "../utils/pdfHelper";
 import { generateMemeReportTemplate } from "../utils/pdfTemplates";
 
 var fonts = {
@@ -52,6 +52,7 @@ export const generateReport = async (memes: any[]): Promise<string> => {
 
             const filePath = path.join(__dirname, `../../top_memes_report_${formattedDate}.pdf`);
             const memesTable = generateTopMemesTable(memes)
+            const rankedCreatorsTable = generateRankedCreatorsTable(memes);
             const keywordsTable = generateKeywordTable(memes);
             // const timestampGraph = await generateTimestampGraph(memes);
             const timestampGraph = await generateAggregatedTimestampGraph();
@@ -61,7 +62,7 @@ export const generateReport = async (memes: any[]): Promise<string> => {
             const sentimentGraph = await generateSentimentGraph(memes);
 
             // Document Definition for pdfmake
-            const docDefinition: TDocumentDefinitions = generateMemeReportTemplate(memesTable, keywordsTable, timestampGraph, commentsVsUpvotesGraph, votesVsUpvoteRatioGraph, postFormatDistributionGraph, sentimentGraph)
+            const docDefinition: TDocumentDefinitions = generateMemeReportTemplate(memesTable, rankedCreatorsTable, keywordsTable, timestampGraph, commentsVsUpvotesGraph, votesVsUpvoteRatioGraph, postFormatDistributionGraph, sentimentGraph)
 
             // Generate PDF
             const pdfDoc = printer.createPdfKitDocument(docDefinition);

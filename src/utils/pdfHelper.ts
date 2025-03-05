@@ -110,7 +110,12 @@ export const generateTopMemesTable = (memes: any[]): Content => {
 
     const rows: TableCell[][] = sortedMemes.map((meme, index) => [
         index + 1,
-        meme.title,
+        {
+            text: meme.title,
+            link: meme.url, // 🔗 Redirects to meme's original link
+            color: "blue", // 💙 Makes it look like a hyperlink
+            decoration: "underline", // 🔗 Underline for better visibility
+        },
         meme.author,
         meme.up_votes.toString(),
         meme.down_votes.toString(),
@@ -124,6 +129,66 @@ export const generateTopMemesTable = (memes: any[]): Content => {
             widths: ["auto", "auto", "auto", "auto", "auto", "auto", "auto"],
             body: [headers, ...rows],
         },
+    };
+};
+
+/**
+ * Aggregates meme data to rank creators based on total upvotes, comments, and post count.
+ */
+export const rankCreators = (memes: MemeDataType[]): { author: string; total_upvotes: number; total_comments: number; post_count: number }[] => {
+    const creatorStats: Record<string, { author: string, total_upvotes: number; total_comments: number; post_count: number }> = {};
+
+    // Aggregate stats for each author
+    memes.forEach((meme) => {
+        if (!creatorStats[meme.author_id]) {
+            creatorStats[meme.author_id] = { author: meme.author, total_upvotes: 0, total_comments: 0, post_count: 0 };
+        }
+        creatorStats[meme.author_id].total_upvotes += meme.up_votes;
+        creatorStats[meme.author_id].total_comments += meme.num_comments;
+        creatorStats[meme.author_id].post_count += 1;
+    });
+
+    // Convert object to array and sort by total_upvotes (highest first)
+    return Object.entries(creatorStats)
+        .map(([author_id, stats]) => ({
+            author: stats.author,
+            total_upvotes: stats.total_upvotes,
+            total_comments: stats.total_comments,
+            post_count: stats.post_count,
+        }))
+        .sort((a, b) => b.total_upvotes - a.total_upvotes) // Sort by highest upvotes
+        .slice(0, 20); // Limit to top 20 creators
+};
+
+/**
+ * Generates the Ranked Creators table content for `pdfmake`.
+ */
+export const generateRankedCreatorsTable = (memes: MemeDataType[]): Content => {
+    const rankedCreators = rankCreators(memes);
+
+    const headers: TableCell[] = [
+        { text: "Rank", bold: true },
+        { text: "Author", bold: true },
+        { text: "Total Upvotes", bold: true },
+        { text: "Total Comments", bold: true },
+        { text: "Post Count", bold: true },
+    ];
+
+    const rows: TableCell[][] = rankedCreators.map((creator, index) => [
+        index + 1, // Rank
+        creator.author, // Author
+        creator.total_upvotes.toString(), // Total Upvotes
+        creator.total_comments.toString(), // Total Comments
+        creator.post_count.toString(), // Total Posts
+    ]);
+
+    return {
+        table: {
+            headerRows: 1,
+            widths: ["auto", "auto", "auto", "auto", "auto"],
+            body: [headers, ...rows],
+        },
+        layout: "lightHorizontalLines",
     };
 };
 
