@@ -165,6 +165,7 @@ The system is composed of several key components:
 | Reddit API                     | Fetching trending memes               |
 | Google Vision AI               | Image recognition and OCR             |
 | Compromise NLP                 | Text analysis and keyword extraction  |
+| Sentiment                      | Sentiment analysis                    |
 | Chart.js + ChartJS Node Canvas | Data visualization                    |
 | pdfmake                        | PDF generation for meme reports       |
 | Telegram Bot API               | Enables user interaction via Telegram |
