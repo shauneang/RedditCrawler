@@ -82,4 +82,23 @@ bot.onText(/\/getdata/, async (msg) => {
     }
 });
 
+bot.onText(/\/start/, (msg) => {
+    const chatId = msg.chat.id;
+    const welcomeMessage = `
+    👋 **Welcome to Meme Analytics Bot!** 🎭📊
+
+    I help analyze trending **Reddit memes** using AI, NLP, and data visualization! 🚀
+
+    🔹 **What I Can Do:**
+    📊 **/getreport** → Get a detailed **Meme Analysis Report (PDF)**
+    📂 **/getdata** → Fetch the **Top 20 Trending Memes (JSON)**
+
+    💡 **Tip:** Try \`/ getreport\` to see insights like **sentiment analysis, engagement trends, and meme formats!**
+
+    🔍 Have fun exploring meme culture! 🎉
+    `
+
+    bot.sendMessage(chatId, welcomeMessage, { parse_mode: "Markdown" });
+});
+
 console.log("🤖 Telegram bot is running...");
