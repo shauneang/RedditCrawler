@@ -1,10 +1,13 @@
 import axios from "axios";
 import dotenv from "dotenv";
+import { db } from "../database";
 import { MemeDataType } from "../type/redditTypes";
 import { analyseMeme, parseMemeData } from "../utils/memes";
 import { existsInFirestore, savePostToFirestore } from "./firebaseServices";
 
 dotenv.config();
+
+const REDDIT_MEMES_URL = "https://www.reddit.com/r/memes/top.json"
 
 /**
  * Fetch top memes from r/memes over the past 24 hours
@@ -13,7 +16,7 @@ dotenv.config();
  */
 export const fetchTopMemes = async (limit: number = 20): Promise<MemeDataType[]> => {
     try {
-        if (!process.env.REDDIT_MEMES_URL) {
+        if (!REDDIT_MEMES_URL) {
             throw new Error("REDDIT_MEMES_URL environment variable missing");
         }
 
@@ -91,3 +94,32 @@ export const saveMemesToFirestore = async (memes: MemeDataType[]): Promise<void>
         console.error("Error saving memes:", error);
     }
 }
+
+/**
+ * Get top memes retrieved at a specific hour.
+ */
+export const getHourlyTopMemes = async (hour: Date): Promise<MemeDataType[]> => {
+    try {
+        const snapshot = await db
+            .collection("top_memes")
+            .where("fetch_timestamp", "==", hour) // Fetch memes retrieved at the given hour
+            .orderBy("score", "desc") // Sort by upvote score
+            .limit(20)
+            .get();
+
+        let memes = snapshot.docs.map((doc) => {
+            let data = doc.data();
+
+            return {
+                ...data,
+                fetch_timestamp: data.fetch_timestamp.toDate(), // Convert Firestore timestamp to Date
+                post_timestamp: data.post_timestamp.toDate(),
+            } as MemeDataType;
+        });
+
+        return memes;
+    } catch (error) {
+        console.error("❌ Error fetching memes by hour:", error);
+        return [];
+    }
+};
