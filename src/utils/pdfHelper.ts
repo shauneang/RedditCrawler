@@ -1,4 +1,4 @@
-import { ChartConfiguration, ChartType } from "chart.js";
+import { ChartConfiguration, ChartType, registerables } from "chart.js";
 import { ChartJSNodeCanvas } from "chartjs-node-canvas";
 import fs from "fs";
 import path from "path";
@@ -12,7 +12,13 @@ import { generateTopKeywords, sortByUpvotes } from "./memes";
  */
 const width = 800;
 const height = 400;
-const chartJSNodeCanvas = new ChartJSNodeCanvas({ width, height });
+const chartJSNodeCanvas = new ChartJSNodeCanvas({
+    width,
+    height,
+    chartCallback: (ChartJS) => {
+        ChartJS.register(...registerables);
+    }
+});
 
 /**
  * Generates a chart image.
