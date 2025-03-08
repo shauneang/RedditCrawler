@@ -7,6 +7,8 @@ import scrapeRoutes from "./routes/crawlerRoutes";
 import reportRoutes from "./routes/reportRoutes";
 import testRoutes from "./routes/testRoutes";
 import { fetchAndStoreTopMemes } from "./services/crawlerServices";
+import "./utils/credentials";
+import { createTempGoogleCredentials } from "./utils/credentials";
 
 cron.schedule("0 * * * *", async () => {
     console.log(`⏳ Fetching memes at ${new Date().toISOString()}`);
@@ -14,6 +16,7 @@ cron.schedule("0 * * * *", async () => {
 });
 
 dotenv.config();
+createTempGoogleCredentials();
 
 const app = express();
 app.use(express.json());

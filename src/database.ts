@@ -1,7 +1,10 @@
 import dotenv from "dotenv";
 import admin from "firebase-admin";
 import fs from 'fs';
+import { createTempFirebaseCredentials } from "./utils/credentials";
 dotenv.config();
+
+createTempFirebaseCredentials();
 
 const firebaseCredentialsPath = process.env.FIREBASE_CREDENTIALS;
 
