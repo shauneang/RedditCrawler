@@ -7,7 +7,7 @@
         "build": "tsc",
         "start": "node dist/index.js",
         "postinstall": "npm rebuild canvas",
-        "now-build": "cp canvas_lib64/*.so.1 node_modules/canvas/build/Release/ && npm run build"
+        "now-build": "cp -R canvas_lib64/build/Release/canvas.node node_modules/canvas/build/Release/ && cp -R canvas_lib64/build/Release/*.dylib node_modules/canvas/build/Release/ && npm run build"
     },
     "author": "",
     "license": "ISC",
