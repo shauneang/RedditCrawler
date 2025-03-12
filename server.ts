@@ -2,13 +2,13 @@ import cors from "cors";
 import dotenv from "dotenv";
 import express, { Request, Response } from "express";
 import cron from "node-cron";
-import "./bot/topMemesBot";
-import scrapeRoutes from "./routes/crawlerRoutes";
-import reportRoutes from "./routes/reportRoutes";
-import testRoutes from "./routes/testRoutes";
-import { fetchAndStoreTopMemes } from "./services/crawlerServices";
-import "./utils/credentials";
-import { createTempGoogleCredentials } from "./utils/credentials";
+import "./src/bot/topMemesBot";
+import scrapeRoutes from "./src/routes/crawlerRoutes";
+import reportRoutes from "./src/routes/reportRoutes";
+import testRoutes from "./src/routes/testRoutes";
+import { fetchAndStoreTopMemes } from "./src/services/crawlerServices";
+import "./src/utils/credentials";
+import { createTempGoogleCredentials } from "./src/utils/credentials";
 
 cron.schedule("0 * * * *", async () => {
     console.log(`⏳ Fetching memes at ${new Date().toISOString()}`);
