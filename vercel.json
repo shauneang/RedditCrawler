@@ -1,8 +1,10 @@
 {
-    "version": 2,
     "build": {
-        "nodeVersion": "20.x"
+        "env": {
+            "NODE_VERSION": "20"
+        }
     },
+    "version": 2,
     "builds": [
         {
             "src": "index.ts",
