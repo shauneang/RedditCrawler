@@ -1,5 +1,6 @@
 import axios from "axios";
 import dotenv from "dotenv";
+import { getRedditToken } from "../auth";
 import { db } from "../database";
 import { MemeDataType } from "../type/redditTypes";
 import { analyseMeme, parseMemeData } from "../utils/memes";
@@ -7,7 +8,7 @@ import { existsInFirestore, savePostToFirestore } from "./firebaseServices";
 
 dotenv.config();
 
-const REDDIT_MEMES_URL = "https://www.reddit.com/r/memes/top.json"
+const REDDIT_MEMES_URL = "https://oauth.reddit.com/r/memes/top.json"
 
 /**
  * Fetch top memes from r/memes over the past 24 hours
@@ -19,13 +20,14 @@ export const fetchTopMemes = async (limit: number = 20): Promise<MemeDataType[]>
         if (!REDDIT_MEMES_URL) {
             throw new Error("REDDIT_MEMES_URL environment variable missing");
         }
-
-        const response = await axios.get("https://www.reddit.com/r/memes/top.json", {
+        const token = await getRedditToken();
+        const response = await axios.get(REDDIT_MEMES_URL, {
             params: {
                 limit,
                 t: "day", // Get top posts over the past 24 hours
             },
             headers: {
+                "Authorization": `Bearer ${token}`,
                 "User-Agent": "RedditScraper/1.0",
             },
         });
