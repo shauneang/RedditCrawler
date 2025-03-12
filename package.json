@@ -6,7 +6,8 @@
         "dev": "nodemon --ext ts --exec ts-node index.ts",
         "build": "tsc",
         "start": "node dist/index.js",
-        "postinstall": "npm rebuild canvas"
+        "postinstall": "npm rebuild canvas",
+        "now-build": "yum install libuuid-devel libmount-devel && cp /lib64/{libuuid,libmount,libblkid}.so.1 node_modules/canvas/build/Release/ && npm run build"
     },
     "author": "",
     "license": "ISC",
