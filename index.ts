@@ -4,7 +4,6 @@ import express, { Request, Response } from "express";
 import cron from "node-cron";
 import "./src/bot/topMemesBot";
 import scrapeRoutes from "./src/routes/crawlerRoutes";
-import reportRoutes from "./src/routes/reportRoutes";
 import testRoutes from "./src/routes/testRoutes";
 import { fetchAndStoreTopMemes } from "./src/services/crawlerServices";
 import "./src/utils/credentials";
@@ -24,7 +23,7 @@ app.use(cors());
 
 // Register API routes
 app.use("/scrape", scrapeRoutes);
-app.use("/api", reportRoutes);
+// app.use("/api", reportRoutes);
 app.use("/test", testRoutes);
 
 app.get("/", async (req: Request, res: Response) => { res.status(200).json({ message: "Hello World." }) })
