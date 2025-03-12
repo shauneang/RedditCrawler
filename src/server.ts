@@ -1,6 +1,6 @@
 import cors from "cors";
 import dotenv from "dotenv";
-import express from "express";
+import express, { Request, Response } from "express";
 import cron from "node-cron";
 import "./bot/topMemesBot";
 import scrapeRoutes from "./routes/crawlerRoutes";
@@ -26,6 +26,8 @@ app.use(cors());
 app.use("/scrape", scrapeRoutes);
 app.use("/api", reportRoutes);
 app.use("/test", testRoutes);
+
+app.get("/", async (req: Request, res: Response) => { res.status(200).json({ message: "Hello World." }) })
 
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => {
