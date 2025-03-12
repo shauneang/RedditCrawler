@@ -1,7 +1,8 @@
 {
     "build": {
         "env": {
-            "NODE_VERSION": "20"
+            "NODE_VERSION": "20",
+            "NPM_FLAGS": "--legacy-peer-deps"
         }
     },
     "version": 2,
