@@ -1,11 +1,9 @@
 import fs from "fs";
 import path from "path";
 import PdfPrinter from "pdfmake";
-import { TDocumentDefinitions } from "pdfmake/interfaces";
 import { db } from "../database";
 import { MemeDataType } from "../type/redditTypes";
-import { generateAggregatedTimestampGraph, generateKeywordTable, generatePostFormatDistributionGraph, generateRankedCreatorsTable, generateSentimentGraph, generateTopMemesTable, generateUpvotesVsCommentsGraph, generateVotesVsUpvoteRatioGraph } from "../utils/pdfHelper";
-import { generateMemeReportTemplate } from "../utils/pdfTemplates";
+// import { generateAggregatedTimestampGraph, generateKeywordTable, generatePostFormatDistributionGraph, generateRankedCreatorsTable, generateSentimentGraph, generateTopMemesTable, generateUpvotesVsCommentsGraph, generateVotesVsUpvoteRatioGraph } from "../utils/pdfHelper";
 
 var fonts = {
     Courier: {
@@ -51,21 +49,24 @@ export const generateReport = async (memes: any[]): Promise<string> => {
             }).format(today).split("/").join("-");
 
             const filePath = path.join(__dirname, `../../top_memes_report_${formattedDate}.pdf`);
-            const memesTable = generateTopMemesTable(memes)
-            const rankedCreatorsTable = generateRankedCreatorsTable(memes);
-            const keywordsTable = generateKeywordTable(memes);
-            // const timestampGraph = await generateTimestampGraph(memes);
-            const timestampGraph = await generateAggregatedTimestampGraph();
-            const commentsVsUpvotesGraph = await generateUpvotesVsCommentsGraph(memes);
-            const votesVsUpvoteRatioGraph = await generateVotesVsUpvoteRatioGraph(memes);
-            const postFormatDistributionGraph = await generatePostFormatDistributionGraph(memes);
-            const sentimentGraph = await generateSentimentGraph(memes);
+            // const memesTable = generateTopMemesTable(memes)
+            // const rankedCreatorsTable = generateRankedCreatorsTable(memes);
+            // const keywordsTable = generateKeywordTable(memes);
+            // // const timestampGraph = await generateTimestampGraph(memes);
+            // const timestampGraph = await generateAggregatedTimestampGraph();
+            // const commentsVsUpvotesGraph = await generateUpvotesVsCommentsGraph(memes);
+            // const votesVsUpvoteRatioGraph = await generateVotesVsUpvoteRatioGraph(memes);
+            // const postFormatDistributionGraph = await generatePostFormatDistributionGraph(memes);
+            // const sentimentGraph = await generateSentimentGraph(memes);
 
-            // Document Definition for pdfmake
-            const docDefinition: TDocumentDefinitions = generateMemeReportTemplate(memesTable, rankedCreatorsTable, keywordsTable, timestampGraph, commentsVsUpvotesGraph, votesVsUpvoteRatioGraph, postFormatDistributionGraph, sentimentGraph)
-
+            // // Document Definition for pdfmake
+            // const docDefinition: TDocumentDefinitions = generateMemeReportTemplate(memesTable, rankedCreatorsTable, keywordsTable, timestampGraph, commentsVsUpvotesGraph, votesVsUpvoteRatioGraph, postFormatDistributionGraph, sentimentGraph)
             // Generate PDF
-            const pdfDoc = printer.createPdfKitDocument(docDefinition);
+            const pdfDoc = printer.createPdfKitDocument({
+                content: [
+                    { text: "Meme Analysis Report", style: "header", alignment: "center" }]
+            });
+            // const pdfDoc = printer.createPdfKitDocument(docDefinition);
             const writeStream = fs.createWriteStream(filePath);
 
             pdfDoc.pipe(writeStream);
