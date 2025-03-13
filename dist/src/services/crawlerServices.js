@@ -15,11 +15,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getHourlyTopMemes = exports.saveMemesToFirestore = exports.fetchAndStoreTopMemes = exports.analyseMemes = exports.fetchTopMemes = void 0;
 const axios_1 = __importDefault(require("axios"));
 const dotenv_1 = __importDefault(require("dotenv"));
+const auth_1 = require("../auth");
 const database_1 = require("../database");
 const memes_1 = require("../utils/memes");
 const firebaseServices_1 = require("./firebaseServices");
 dotenv_1.default.config();
-const REDDIT_MEMES_URL = "https://www.reddit.com/r/memes/top.json";
+const REDDIT_MEMES_URL = "https://oauth.reddit.com/r/memes/top.json";
 /**
  * Fetch top memes from r/memes over the past 24 hours
  * @param {number} limit - Number of posts to fetch (default: 10)
@@ -30,12 +31,14 @@ const fetchTopMemes = (...args_1) => __awaiter(void 0, [...args_1], void 0, func
         if (!REDDIT_MEMES_URL) {
             throw new Error("REDDIT_MEMES_URL environment variable missing");
         }
-        const response = yield axios_1.default.get("https://www.reddit.com/r/memes/top.json", {
+        const token = yield (0, auth_1.getRedditToken)();
+        const response = yield axios_1.default.get(REDDIT_MEMES_URL, {
             params: {
                 limit,
                 t: "day", // Get top posts over the past 24 hours
             },
             headers: {
+                "Authorization": `Bearer ${token}`,
                 "User-Agent": "RedditScraper/1.0",
             },
         });

@@ -16,12 +16,12 @@ const cors_1 = __importDefault(require("cors"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const express_1 = __importDefault(require("express"));
 const node_cron_1 = __importDefault(require("node-cron"));
-require("./src/bot/topMemesBot");
-const crawlerRoutes_1 = __importDefault(require("./src/routes/crawlerRoutes"));
-const testRoutes_1 = __importDefault(require("./src/routes/testRoutes"));
-const crawlerServices_1 = require("./src/services/crawlerServices");
-require("./src/utils/credentials");
-const credentials_1 = require("./src/utils/credentials");
+require("../../src/bot/topMemesBot");
+const crawlerRoutes_1 = __importDefault(require("../../src/routes/crawlerRoutes"));
+const testRoutes_1 = __importDefault(require("../../src/routes/testRoutes"));
+const crawlerServices_1 = require("../../src/services/crawlerServices");
+require("../../src/utils/credentials");
+const credentials_1 = require("../../src/utils/credentials");
 node_cron_1.default.schedule("0 * * * *", () => __awaiter(void 0, void 0, void 0, function* () {
     console.log(`⏳ Fetching memes at ${new Date().toISOString()}`);
     yield (0, crawlerServices_1.fetchAndStoreTopMemes)();
