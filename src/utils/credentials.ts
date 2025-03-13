@@ -7,9 +7,9 @@ dotenv.config(); // Load .env variables in local development
 export function createTempGoogleCredentials() {
     const credentialsPath = path.join('/tmp', 'gcp-credentials.json'); // Works on Vercel
 
-    if (!process.env.GOOGLE_CREDENTIALS_JSON) {
-        throw new Error("GOOGLE_CREDENTIALS_JSON is not set");
-    }
+    // if (!process.env.GOOGLE_CREDENTIALS_JSON) {
+    //     throw new Error("GOOGLE_CREDENTIALS_JSON is not set");
+    // }
     if (!process.env.GOOGLE_CREDENTIALS_BASE64) {
         throw new Error("GOOGLE_CREDENTIALS_BASE64 is not set");
     }
@@ -28,9 +28,9 @@ export function createTempGoogleCredentials() {
 export function createTempFirebaseCredentials() {
     const credentialsPath = path.join('/tmp', 'firebase-credentials.json'); // Works on Vercel
 
-    if (!process.env.FIREBASE_CREDENTIALS_JSON) {
-        throw new Error("FIREBASE_CREDENTIALS_JSON is not set");
-    }
+    // if (!process.env.FIREBASE_CREDENTIALS_JSON) {
+    //     throw new Error("FIREBASE_CREDENTIALS_JSON is not set");
+    // }
     if (!process.env.FIREBASE_CREDENTIALS_BASE64) {
         throw new Error("FIREBASE_CREDENTIALS_BASE64 is not set");
     }
